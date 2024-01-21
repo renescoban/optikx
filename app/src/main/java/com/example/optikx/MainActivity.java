@@ -55,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (  soru > 0 && soru <= 40 && cevaplarOlustumu){
+                    //fonksiyona yönlendirme
                     changeActivity();
 
                     }else {
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        // ALERT BUILDER
+        // ALERT DIALOG BUILDER
         builder = DialogHelper.alertBuilder(MainActivity.this);
 
 
@@ -221,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 ));
                 containerLinearLayout.addView(labelTextView);
 
-                // Create a new RadioGroup
+                // RadioGroup' ları Oluşturma
                 RadioGroup optionsRadioGroup = new RadioGroup(this);
                 optionsRadioGroup.setId( i );
                 optionsRadioGroup.setLayoutParams(new RadioGroup.LayoutParams(
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                // Create RadioButtons
+                // RadioButton' ları Oluşturma
                 for (int j = 1; j <= 5; j++) {
                     RadioButton radioButton = new RadioButton(this);
                     radioButton.setText( options[j-1] );
@@ -253,18 +254,23 @@ public class MainActivity extends AppCompatActivity {
         } else {
             // Log an error or display a message if the ScrollView is not found
             Log.e("YourActivity", "ScrollView not found with ID R.id.radiosLayout");
-            // or Toast.makeText(this, "ScrollView not found", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "ScrollView not found", Toast.LENGTH_SHORT).show();
         }
     }
 
+
+    // 'next' butonu ile aktiviteyi/sayafayı değiştirme ve gereklei parametreleri aktarma
     private void changeActivity(){
+
         Intent intent = new Intent(this, MainActivity2.class);
         int toplamSoru = soru;
+
 
         List<Character> dogruCevaplar = new ArrayList<>();
         dogruCevaplar = cevaplariAl(dogruCevaplar);
         Log.d("ACTIVITY CHANGE", dogruCevaplar.toString());
         char[] charArray = new char[dogruCevaplar.size()];
+
         for (int i = 0; i < dogruCevaplar.size(); i++) {
             charArray[i] = dogruCevaplar.get(i);
         }
@@ -293,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
                         dogruCevapL.add(checkedRadioButton.getText().charAt(0));
                     }
                 }else {
-                    // BOŞ BIRAKILMASI DURUMUNDA E OLARAK AYARLANIR
+                    // BOŞ BIRAKILMASI DURUMUNDA CEVABI 'E' OLARAK AYARLANIR
                     dogruCevapL.add('E');
                 }
             } else Log.d("CEVAPLAR", "RADIO GROUP ID BULUNAMADI. ");

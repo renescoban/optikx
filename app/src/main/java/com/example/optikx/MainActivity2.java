@@ -111,6 +111,8 @@ public class MainActivity2 extends AppCompatActivity {
         toast.show();
     }
 
+
+    //Aktarılan Soru Sayısı kadar Rastgele Cevap Oluştur
     List<Character> cevap_uret(int toplam_soru){
         Log.d("Uretilen Soru Sayisi", Integer.toString(toplam_soru));
         List<Character> characters = new ArrayList<>();
@@ -124,6 +126,8 @@ public class MainActivity2 extends AppCompatActivity {
         return characters;
     }
 
+
+    // Cevaplar için Oluşturulan Char(karakter) listesini String Listesine Dönüştürme
     List<String> listeyeCevir(List<Character> liste){
 
         // Convert List<Character> to List<String>
@@ -137,6 +141,8 @@ public class MainActivity2 extends AppCompatActivity {
         return stringList;
     }
 
+
+    // Listeyi ListView'e Aktar
     private void ListeAyarla(ListView listTest ,List<String> cevaplar){
         ListView dofruListeLayout= listTest ;
         ArrayAdapter<String> veriAdaptoru = new ArrayAdapter<String>
@@ -149,6 +155,8 @@ public class MainActivity2 extends AppCompatActivity {
 
     }
 
+
+    // Listeleri Karşılatırma -- Dogru, Yanlış ve Boş sayılarını Bulma
     private static <T> void compareLists(List<T> list_dogru, List<T> list_rnd) {
 
         // Check if both lists have the same size
@@ -173,8 +181,9 @@ public class MainActivity2 extends AppCompatActivity {
 
     }
 
+    // Doğru, Yanlış ve Boş Soru Durumu View'e Aktar
     void setPuan(){
-        // Doğru, Yanlış ve Boş Soru Durumu Hesapla
+
         dogruSayisi_txt = findViewById(R.id.dogruSayisi);
         yanlisSayisi_txt  = findViewById(R.id.yanlisSayisi);
         bosSayisi_txt  = findViewById(R.id.bosSayisi);
