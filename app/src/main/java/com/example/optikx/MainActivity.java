@@ -1,20 +1,31 @@
 package com.example.optikx;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.content.PackageManagerCompat;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -25,6 +36,7 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,14 +46,20 @@ public class MainActivity extends AppCompatActivity {
     public int soru;
     private Button btnShowDialog;
     private ImageButton btnGalery;
-    private ImageButton btnImage;
+    private ImageButton btnCamera;
     private Switch switchButton;
     private EditText soruSayisi;
+    TextView uriLabel ;
 
     List<String> dogruCevaplar2;
     ScrollView containerScrollView;
 
     AlertDialog.Builder builder;
+
+    ActivityResultLauncher<Uri> takePictureLauncher;
+    ImageView image_view;
+    Uri picUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +86,6 @@ public class MainActivity extends AppCompatActivity {
         // ALERT DIALOG BUILDER
         builder = DialogHelper.alertBuilder(MainActivity.this);
 
-
-
-
-
         /* CEVAP AYARLAMA DIALOG -    */
         btnShowDialog= findViewById(R.id.buttonCevap);
         btnShowDialog.setOnClickListener(new View.OnClickListener() {
@@ -81,43 +95,42 @@ public class MainActivity extends AppCompatActivity {
 
                 if (switchButton.isChecked()){
                     soruAyarla(soru);
-                    //showDialog(view);
                     cevaplarOlustumu = true;
-
                     Log.d("Button", "Soru Ayarlandı!");
                 }else{
                     builder.setMessage("Lütfen Soru Sayısını Kilitleyiniz.")
                             .setPositiveButton("Tamam", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-
                                 }
                             });
                     AlertDialog alert = builder.create();
                     alert.setTitle("Kilitlenmedi!");
                     alert.show();
-                    //Toast toast = Toast.makeText(getApplicationContext(), "Soru Sayısını Kilitle!" , Toast.LENGTH_LONG);
-                    //toast.show();
                 }
-
             }
         });
-
-
 
         /*  IMAGE BUTTONS   */
-        btnImage = findViewById(R.id.imageButton);
-        btnImage.setOnClickListener(new View.OnClickListener(){
+        btnCamera = findViewById(R.id.cameraButton);
+        btnGalery = findViewById(R.id.galleryButton);
+        uriLabel = findViewById(R.id.picUriLabel);
+        image_view =findViewById(R.id.imageView);
+
+        picUri = createUri();
+        registerPictureLauncher();
+
+        btnCamera.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                System.out.println("clicked!");
-
                 Snackbar.make(view, "Kamera Açıldı!", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.imageButton)
+                        .setAnchorView(R.id.cameraButton)
                         .setAction("Action", null).show();
+
+                checkCameraPermissionAndOpenCamera();
             }
         });
 
-        btnGalery = findViewById(R.id.galleryButton);
+
         btnGalery.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -176,9 +189,37 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    private void registerPictureLauncher() {
+        takePictureLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                new ActivityResultCallback<Boolean>() {
+                    @Override
+                    public void onActivityResult(Boolean o) {
+                        try {
+                            image_view.setImageURI(null);
+                            image_view.setImageURI(picUri);
+                            uriLabel.setText(picUri.toString());
+                            Log.d(" registerPictureLauncher ", " OKOKOKOKOK ActivityResultContracts");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+        );
+    }
+    private void checkCameraPermissionAndOpenCamera(){
+        if(ActivityCompat.checkSelfPermission( MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{ Manifest.permission.CAMERA}, 1);
+        }else {
+            takePictureLauncher.launch(picUri);
+        }
+    }
 
-
-
+    private Uri createUri(){
+        File imageFile = new File(getApplicationContext().getFilesDir(),"camera_photo.jpg" );
+        return FileProvider.getUriForFile( getApplicationContext(),"com.example.optikx.FileProvider" ,
+                imageFile );
+    }
 
 
 
@@ -257,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
             //Toast.makeText(this, "ScrollView not found", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     // 'next' butonu ile aktiviteyi/sayafayı değiştirme ve gereklei parametreleri aktarma
     private void changeActivity(){
